@@ -1,0 +1,33 @@
+/*
+	Titteregister v1.0
+*/
+
+class Titteregister {
+	public static void main(String args[]) {
+		// Output
+        Output menu = new Output();
+
+        menu.printLine();
+        menu.printText("Oles titteregister (v1.0)");
+        menu.printLine();
+	}
+}
+
+
+class Output {
+    final int WIDTH = 50;
+
+    void printLine() {
+        System.out.print("+");
+        for (int i = 0; i < WIDTH; i++) {
+            System.out.print("-");
+        }
+        System.out.println("+");
+    }
+    void printText(String text) {
+        System.out.print("| " + text);
+        for(int i = 0; i < (7 - text.length()); i++) {            System.out.print(" ");
+        }
+        System.out.println("|");
+    }
+}

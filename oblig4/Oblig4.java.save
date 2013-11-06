@@ -1,0 +1,317 @@
+// Imports
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+// =================================================================================
+// Class: Oblig4
+//=================================================================================
+class Oblig4 {
+    // Variables
+    static Building ab;
+
+    // Main
+    public static void main(String[] args) {
+        // Building
+        ab = new Building("Utsyn", 3, 6);
+
+        // Main menu
+        mainMenu();
+    }
+
+    // Main menu
+    static void mainMenu() {
+        // Header
+        System.out.println("===============================================================");
+        System.out.println(" Gulbrand Grås Husleiesystem");
+        System.out.println("===============================================================");
+
+        // Options
+        System.out.println("\n Meny:");
+        System.out.println("\t1. Skriv oversikt");
+        System.out.println("\t2. Registrer ny leietager");
+        System.out.println("\t3. Registrer betaling fra leietager");
+        System.out.println("\t4. Registrer frivilling utflytting");
+        System.out.println("\t5. Månedskjøring av husleie");
+        System.out.println("\t6. Kast ut leietagere");
+        System.out.println("\t7. Øk husleien");
+        System.out.println("\t8. Avslutt");
+
+        int option = -1;
+
+        while (option != 0) {
+            InputHelper in = new InputHelper();
+
+            switch (in.getInt("Velg ønsket funksjon", 1, 8)) {
+                case 1: ab.printOverview(); break;
+                case 2: ab.newTenant(); break;
+                case 3: ab.registerPayment(); break;
+                case 4: ab.removeTenant(); break;
+                case 5: ab.runPayments(); break;
+                case 6: ab.evictTenant(); break;
+                case 7: ab.getRicher(); break;
+                case 8: ab.quit(); break;
+            }
+        }
+    }
+}
+
+
+//=================================================================================
+// Class: Building
+//=================================================================================
+class Building {
+    // Constants
+    final String DATAFILE = "hybeldata.txt";
+    final String EMPTY = "TOM HYBEL";
+
+    // Variables
+    ArrayList<Room> rooms = new ArrayList<Room>();
+
+    String buildingName;
+    int buildingFloors;
+    int buildingRooms;
+
+    int lastSavedMonth;
+    int lastSavedYear;
+    int totalEarnings;
+    int totalMonths;
+
+    int rent;
+    int rentTop;
+
+    // Constructor
+    Building(String buildingName, int buildingFloors, int buildingRooms) {
+        // Building
+        this.buildingName = buildingName;
+        this.buildingFloors = buildingFloors;
+        this.buildingRooms = buildingRooms;
+
+        // Read building data
+        try {
+            BufferedReader data = new BufferedReader(new FileReader(DATAFILE));
+
+            // Stats
+            String[] stats = data.readLine().split(";");
+
+            lastSavedMonth = Integer.parseInt(stats[0].trim());
+            lastSavedYear = Integer.parseInt(stats[1].trim());
+            totalEarnings = Integer.parseInt(stats[2].trim());
+            totalMonths = Integer.parseInt(stats[3].trim());
+            rent = Integer.parseInt(stats[4].trim());
+            rentTop = Integer.parseInt(stats[5].trim());
+
+            // Rooms
+            String line;
+
+            while ((line = data.readLine()) != null) {
+                String[] d = line.split(";");
+
+                // Room
+                Room room = new Room();
+                room.setFloor(Integer.parseInt(d[0]));
+                room.setId(d[1]);
+
+                if (room.getFloor() < this.buildingFloors)
+                    room.setRent(this.rent);
+                else
+                    room.setRent(this.rentTop);
+
+                // Tenant
+                if(!d[3].equals(EMPTY)) {
+                    Tenant tenant = new Tenant();
+                    tenant.setName(d[3]);
+                    tenant.setCredit(Integer.parseInt(d[2]));
+                    room.setTenant(tenant);
+                }
+
+                rooms.add(room);
+            }
+
+            data.close();
+
+        } catch(IOException e) {
+            System.out.println("\t[FEIL] Kunne ikke lese datafilen!");
+        }
+    }
+
+    // Method: Print overview
+    void printOverview() {
+        System.out.println("\n Hybeloversikt for " + this.buildingName + ":");
+        System.out.println("---------------------------------------------------------------");
+
+        // Rooms
+        int prevFloor = 0;
+
+        for (Room room : this.rooms) {
+            if (room.getFloor() > prevFloor) System.out.println();
+            prevFloor = room.getFloor();
+
+            // Tenant
+            Tenant t = room.getTenant();
+            String name = (room.isOccupied() ? t.getName() : "( LEDIG )");
+            int credit = (room.isOccupied() ? t.getCredit() : 0);
+
+            System.out.print("\t" + room.getFloor() + room.getId());
+            System.out.print("\t" + name);
+            System.out.println("\t\t" + credit);
+        }
+
+        // Stats
+        System.out.println("\n\n\tDato:\t\t\t\t" + this.lastSavedMonth + "/" + this.lastSavedYear);
+        System.out.println("\tDriftstid:\t\t\t" + this.totalMonths + " måneder");
+        System.out.println("\tTotalfortjeneste:\t\t" + this.totalEarnings + "kr");
+    }
+
+    // Method: Add new tenant
+    void newTenant() {
+        System.out.println("\n Registrer ny leietager i " + this.buildingName + ":");
+        System.out.println("---------------------------------------------------------------");
+
+        // Free rooms
+        for (Room room : this.rooms) {
+            if(!room.isOccupied())
+                System.out.println("LEDIG");
+        }
+    }
+
+    // Method: Register payment
+    void registerPayment() {
+        System.out.println("register payment");
+    }
+
+    // Method: Register tenant moving out
+    void removeTenant() {
+        System.out.println("register payment");
+    }
+
+    // Method: Run payments
+    void runPayments() {
+        System.out.println("run payments");
+    }
+
+    // Method: Evict tenant
+    void evictTenant() {
+        System.out.println("eviction");
+    }
+
+    // Method: Increase rental fee
+    void getRicher() {
+        System.out.println("increase fee");
+    }
+
+    // Method: Quit
+    void quit() {
+        // Save to datafile
+        System.out.println("\tLagrer data...");
+
+        // Quit
+        System.out.println("\tTakk for nå!");
+        System.exit(0);
+    }
+}
+
+
+//=================================================================================
+// Class: Room
+//=================================================================================
+class Room {
+    int floor;
+    String id;
+    int rent;
+    Tenant tenant = null;
+
+    public int getFloor() {
+        return floor;
+    }
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public int getRent() {
+        return rent;
+    }
+    public void setRent(int rent) {
+        this.rent = rent;
+    }
+    public Tenant getTenant() {
+        return tenant;
+    }
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
+    public boolean isOccupied() {
+        if(tenant == null)
+            return false;
+        return true;
+    }
+}
+
+
+//=================================================================================
+// Class: Tenant
+//=================================================================================
+class Tenant {
+    String name = "";
+    int credit;
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getCredit() {
+        return credit;
+    }
+    public void setCredit(int credit) {
+        this.credit = credit;
+    }
+}
+
+
+//=================================================================================
+// Class: Helpers
+//=================================================================================
+class InputHelper {
+    Scanner input;
+
+    InputHelper() {
+        input = new Scanner(System.in);
+    }
+
+    /* Get int input, then validate */
+    int getInt(String query, int min, int max) {
+        int i;
+
+        do {
+            System.out.print("\n > " + query + " (" + min + "-" + max + "): ");
+            while (!input.hasNextInt()) {
+                System.out.print(" > Ikke et tall, prøv igjen: ");
+                input.next();
+            }
+            i = input.nextInt();
+        } while (i < min || i > max);
+
+        input.nextLine();
+
+        return i;
+    }
+
+    /* Get string input */
+    String getString(String queryText) {
+        System.out.print("  > " + queryText + ": ");
+
+        String choice = input.nextLine().trim();
+
+        return choice;
+    }
+}

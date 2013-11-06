@@ -1,0 +1,19 @@
+10;2013;0;0;7500;9000
+1;A;6000;Ole Johan
+1;B;12000;Guri Smith
+1;C;0;TOM HYBEL
+1;D;9000;Alan Turen
+1;E;33000;Tim Verner
+1;F;4999;Anders Tanen
+2;A;-9000;Torvald Linus
+2;B;5001;Rikard Stall
+2;C;10000;Bill Weitz
+2;D;15000;Steve Job
+2;E;123;Steve Woz
+2;F;2400;Denis Rich
+3;A;88000;James Goblin
+3;B;456000;Mark Sukker
+3;C;6000;Karl Bagasje
+3;D;0;TOM HYBEL
+3;E;250;Ada Love
+3;F;55000;Don Knut
