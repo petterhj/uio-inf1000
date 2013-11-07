@@ -1,9 +1,10 @@
 // Imports
 import java.io.*;
+import java.lang.Math;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.text.DecimalFormat;
 
 
 // 	Class: Oblig5
@@ -156,6 +157,10 @@ class Planner {
         ArrayList<Line> fromLines = from.getLines();
         ArrayList<Line> toLines = to.getLines();
         
+        DecimalFormat df = new DecimalFormat("#,##0.0");
+        
+        double fastest = 1000;
+        String fastest_string = "";
         
         // DEBUG START
         /*
@@ -179,9 +184,19 @@ class Planner {
             System.out.println(" Direkterute(r):");
             
             for (Line l : direct) {
-                System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getName());
-                System.out.println(" til " + to.getName() + " retning " + l.getEndOfLine(from, to).getName() + ".");
-                System.out.println("   o Estimert reisetid: ... .\n");
+                // Travel time
+                int stops = Math.abs(l.getStationNumber(to) - l.getStationNumber(from));
+                double time = ((l.getType() == "trikk") ? (stops*1.4) : (stops*1.8));
+                
+                // Output
+                System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName());
+                System.out.println(" til " + to.getPrettyName() + " retning " + l.getEndOfLine(from, to).getPrettyName() + ".");
+                System.out.println("   o Estimert reisetid: " + df.format(time) + " min.\n");
+                
+                if (time < fastest) {
+                    fastest = time;
+                    fastest_string = "" + fastest + " - " + time;
+                }
             }
         }
         
@@ -194,17 +209,29 @@ class Planner {
                     for (Line sl : s.getLines()) {
                         // Found route (with only one transfer!)
                         if(sl.hasStation(to)) {
-                            System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getName());
-                            System.out.println(" til " + s.getName() + " retning " + l.getEndOfLine(from, s).getName() + ",");
-                            System.out.print("   | og deretter " + sl.getType() + " linje " + sl.getNumber() + " retning " + sl.getEndOfLine(s, to).getName());
-                            System.out.println(" til " + to.getName() + ".");
-                            System.out.println("   o Estimert reisetid: ... .\n");
+                            // Travel time
+                            int stopsL1 = Math.abs(l.getStationNumber(s) - l.getStationNumber(from));
+                            double timeL1 = ((l.getType() == "trikk") ? (stopsL1*1.4) : (stopsL1*1.8));
+                            double wait = (((sl.getType() == "trikk") ? 5 : 7.5) + 3);
+                            int stopsL2 = Math.abs(sl.getStationNumber(to) - sl.getStationNumber(s));
+                            double timeL2 = ((sl.getType() == "trikk") ? (stopsL2*1.4) : (stopsL2*1.8));
+                            double time = timeL1 + timeL2 + wait;
                             
+                            // Output
+                            System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName());
+                            System.out.println(" til " + s.getPrettyName() + " retning " + l.getEndOfLine(from, s).getPrettyName() + ",");
+                            System.out.print("   | og deretter " + sl.getType() + " linje " + sl.getNumber() + " retning " + sl.getEndOfLine(s, to).getPrettyName());
+                            System.out.println(" til " + to.getPrettyName() + ".");
+                            System.out.println("   o Estimert reisetid: " + df.format(time) + " min.\n");
                         }
                     }
                 }
             }
         }
+        
+        // Shortest travel time
+        System.out.println(" Raskeste reisevei:");
+        System.out.println("   " + fastest_string);
         
         // Travel more
         while (true) {
@@ -340,6 +367,9 @@ class Station {
 	String getName() {
 		return this.name;
 	}
+    String getPrettyName() {
+        return this.getName().replace("-", " ");
+    }
 }
 
 
@@ -347,4 +377,11 @@ class Station {
 // =================================================================================
 class Transfer {
 
+}
+
+
+// 	Class: Transfer
+// =================================================================================
+class Travel {
+    
 }
