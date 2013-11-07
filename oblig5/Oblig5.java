@@ -150,8 +150,8 @@ class Planner {
     // Find routes
     private void findRoutes(Station from, Station to) {
 		// Header
-		System.out.println("\n\n Aktuelle reiseruter mellom " + from.getName() + " og " + to.getName());
-		System.out.println("--------------------------------------------------------------------------------\n");
+        System.out.println("\n\n Aktuelle reiseruter mellom " + from.getName() + " og " + to.getName());
+        System.out.println("--------------------------------------------------------------------------------\n");
         
         ArrayList<Line> fromLines = from.getLines();
         ArrayList<Line> toLines = to.getLines();
