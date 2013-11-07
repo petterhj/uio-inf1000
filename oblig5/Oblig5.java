@@ -17,9 +17,9 @@ class Oblig5 {
         final String RT = "\u001B[0m";
         
 		// Header
-		System.out.println("\n=============================================================================");
+		System.out.println("\n================================================================================");
 		System.out.println(" "+RD+"Reiseplanlegger"+RT);
-		System.out.println("=============================================================================\n");
+		System.out.println("================================================================================\n");
 		
 		// Initiate planner
         Planner pl = new Planner();
@@ -34,8 +34,8 @@ class Oblig5 {
 // =================================================================================
 class Planner {
     // Variables
-    //private final String DATAFILE = "trikkogtbaneutf8-ver2.txt";
-    private final String DATAFILE = "testdata.txt";
+    private final String DATAFILE = "trikkogtbaneutf8-ver2.txt";
+    //private final String DATAFILE = "testdata.txt";
 	
     private HashMap<Integer, Line> lines = new HashMap<Integer, Line>();
 	private HashMap<String, Station> stations = new HashMap<String, Station>();
@@ -131,7 +131,7 @@ class Planner {
         // Find routes
         this.findRoutes(origin, destination);
     }
-    
+        
     private String getAndValidateInput(String q) {
         Scanner input = new Scanner(System.in);
         String stationName;
@@ -140,7 +140,7 @@ class Planner {
         do {
             String query = ((attempts == 0) ? q + ": " : "Fant ikke stasjon, prøv igjen: ");
             System.out.print("  > " + query);
-            stationName = input.nextLine();
+            stationName = input.nextLine().replace(' ', '-');
             attempts++;
         } while (!this.isStation(stationName));
         
@@ -151,7 +151,7 @@ class Planner {
     private void findRoutes(Station from, Station to) {
 		// Header
 		System.out.println("\n\n Aktuelle reiseruter mellom " + from.getName() + " og " + to.getName());
-		System.out.println("-----------------------------------------------------------------------------\n");
+		System.out.println("--------------------------------------------------------------------------------\n");
         
         ArrayList<Line> fromLines = from.getLines();
         ArrayList<Line> toLines = to.getLines();
@@ -204,6 +204,21 @@ class Planner {
                     }
                 }
             }
+        }
+        
+        // Travel more
+        while (true) {
+            System.out.print(" > Reise mer (j/n)? ");
+        
+            Scanner input = new Scanner(System.in);
+            String c = input.nextLine().trim();
+            
+            if (c.equalsIgnoreCase("j")) {
+                System.out.println();
+                this.queryFromTo();
+            }
+            
+            return;
         }
     }
 
