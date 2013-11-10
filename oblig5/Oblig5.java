@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.text.DecimalFormat;
 
 
-// 	Class: Oblig5
+//  Class: Oblig5
 // =================================================================================
 class Oblig5 {
     // Main
@@ -256,7 +256,7 @@ class Planner {
 }
 
 
-// 	Class: Line
+//  Class: Line
 // =================================================================================
 class Line {
     /*  Variables
@@ -310,7 +310,7 @@ class Line {
 }
 
 
-// 	Class: Station
+//  Class: Station
 // =================================================================================
 class Station {
     /*  Variables
