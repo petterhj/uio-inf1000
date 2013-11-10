@@ -225,7 +225,6 @@ class Planner {
         }
     }
 
-    
     // Return line (by number)
     private Line getLineByNumber(int n) {
         return this.getLines().get(n);
@@ -259,14 +258,10 @@ class Planner {
 //  Class: Line
 // =================================================================================
 class Line {
-    /*  Variables
-    ------------------------------------ */
+    // Variables
     private int number;
     private ArrayList<Station> stations = new ArrayList<Station>();
     
-	
-    /*  Methods
-	------------------------------------ */
 	
     // Add station to line
     void addStation(Station s) {
@@ -301,8 +296,8 @@ class Line {
             return this.getStations().get(this.getStations().size() - 1);
         else
             return this.getStations().get(0);
-	}
-    
+    }
+
     // Type
     String getType() {
         return ((this.getNumber() < 10) ? "t-bane" : "trikk");
@@ -313,20 +308,16 @@ class Line {
 //  Class: Station
 // =================================================================================
 class Station {
-    /*  Variables
-    ------------------------------------ */
+    // Variables
     private String name;
     private ArrayList<Line> lines = new ArrayList<Line>();
-	
-	
-    /*  Methods
-    ------------------------------------ */
+    
 	
     // Add line to station
     void addLine(Line l) {
         lines.add(l);
     }
-	
+
     // Return lines
     ArrayList<Line> getLines() {
         return this.lines;
