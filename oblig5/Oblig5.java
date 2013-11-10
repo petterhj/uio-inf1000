@@ -12,14 +12,9 @@ import java.text.DecimalFormat;
 class Oblig5 {
     // Main
     public static void main(String[] args) {
-        final String RD = "\u001B[31m";
-        final String GN = "\u001B[32m";
-        final String YL = "\u001B[33m";
-        final String RT = "\u001B[0m";
-        
-		// Header
+        // Header
 		System.out.println("\n================================================================================");
-		System.out.println(" "+RD+"Reiseplanlegger"+RT);
+		System.out.println(" Reiseplanlegger");
 		System.out.println("================================================================================\n");
 		
 		// Initiate planner
@@ -36,7 +31,11 @@ class Oblig5 {
 class Planner {
     // Variables
     private final String DATAFILE = "trikkogtbaneutf8-ver2.txt";
-    //private final String DATAFILE = "testdata.txt";
+    private final double TRAVELTIME_TRAM = 1.4;
+    private final double TRAVELTIME_SUBW = 1.8;
+    private final double TRANSFERTIME_TRAM = 5.0;
+    private final double TRANSFERTIME_SUBW = 7.5;
+    private final double TRANSFERTIME = 3.0;
 	
     private HashMap<Integer, Line> lines = new HashMap<Integer, Line>();
 	private HashMap<String, Station> stations = new HashMap<String, Station>();
@@ -69,30 +68,20 @@ class Planner {
                     Line line = new Line();
 					line.setNumber(lineNumber);
                     lines.put(line.getNumber(), line);
-                    
-                    // DEBUG
-                    //System.out.println("\n" + dataline + " -- " + lineNumber);
 				} 
 				// Station
 				else {
 					stationNumber++;
-                    
                     Station station;
                     
 					if (this.isStation(dataline)) {
 						// Get existing station
                         station = this.getStationByName(dataline);
-                        
-                        // DEBUG
-						//System.out.print("EXT\t");
 					} else {
 						// Add new station
                         station = new Station();
                         station.setName(dataline);
 						stations.put(station.getName().toLowerCase(), station);
-                        
-                        // DEBUG
-                        //System.out.print("NEW\t");
 					}
                     
                     // Add line to station
@@ -100,9 +89,6 @@ class Planner {
                     
                     // Add station to line
                     this.getLineByNumber(lineNumber).addStation(station);
-                    
-                    // DEBUG
-                    //System.out.println("S" + stationNumber + " -- " + "L" + this.getLineByNumber(lineNumber).getNumber() + " -- " + station.getLines().size() + " --- " + station.getName());
 				}				
             }
             
@@ -123,16 +109,11 @@ class Planner {
         Station origin = this.getStationByName(this.getAndValidateInput("Fra"));
         Station destination = this.getStationByName(this.getAndValidateInput("Til"));
         
-        //Station origin = this.getStationByName("Skogen");
-        //Station destination = this.getStationByName("Bøler");
-        
-        //Station origin = this.getStationByName("Sannergata");
-        //Station destination = this.getStationByName("Jernbanetorget");
-        
         // Find routes
         this.findRoutes(origin, destination);
     }
-        
+    
+    // Validate user input
     private String getAndValidateInput(String q) {
         Scanner input = new Scanner(System.in);
         String stationName;
@@ -143,7 +124,7 @@ class Planner {
             System.out.print("  > " + query);
             stationName = input.nextLine().replace(' ', '-');
             attempts++;
-        } while (!this.isStation(stationName));
+        } while ((!this.isStation(stationName)) || (stationName.equalsIgnoreCase("Ringen")));
         
         return stationName;
     }
@@ -159,22 +140,8 @@ class Planner {
         
         DecimalFormat df = new DecimalFormat("#,##0.0");
         
-        double fastest = 1000;
+        double fastest = 999;
         String fastest_string = "";
-        
-        // DEBUG START
-        /*
-        System.out.println("Linjer - " + from.getName() + ":");
-        for (Line l : fromLines)
-            System.out.println(" > linje " + l.getNumber() + ", stasjon nr.: " + l.getStationNumber(from));
-        
-        System.out.println("Linjer - " + to.getName() + ":");
-        for (Line l : toLines)
-            System.out.println(" > linje " + l.getNumber() + ", stasjon nr.: " + l.getStationNumber(to));
-        
-        System.out.println();
-        */
-        // DEBUG END
         
         // Direct routes
         ArrayList<Line> direct = new ArrayList<Line>(fromLines);
@@ -186,16 +153,18 @@ class Planner {
             for (Line l : direct) {
                 // Travel time
                 int stops = Math.abs(l.getStationNumber(to) - l.getStationNumber(from));
-                double time = ((l.getType() == "trikk") ? (stops*1.4) : (stops*1.8));
+                double time = ((l.getType() == "trikk") ? (stops * TRAVELTIME_TRAM) : (stops * TRAVELTIME_SUBW));
                 
                 // Output
-                System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName());
-                System.out.println(" til " + to.getPrettyName() + " retning " + l.getEndOfLine(from, to).getPrettyName() + ".");
-                System.out.println("   o Estimert reisetid: " + df.format(time) + " min.\n");
+                String output  = "   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName();
+                       output += " til " + to.getPrettyName() + " retning " + l.getEndOfLine(from, to).getPrettyName() + ".\n";
+                       output += "   o Estimert reisetid: " + df.format(time) + " min.\n";
+                
+                System.out.println(output);
                 
                 if (time < fastest) {
                     fastest = time;
-                    fastest_string = "" + fastest + " - " + time;
+                    fastest_string = output;
                 }
             }
         }
@@ -211,18 +180,25 @@ class Planner {
                         if(sl.hasStation(to)) {
                             // Travel time
                             int stopsL1 = Math.abs(l.getStationNumber(s) - l.getStationNumber(from));
-                            double timeL1 = ((l.getType() == "trikk") ? (stopsL1*1.4) : (stopsL1*1.8));
-                            double wait = (((sl.getType() == "trikk") ? 5 : 7.5) + 3);
+                            double timeL1 = ((l.getType() == "trikk") ? (stopsL1 * TRAVELTIME_TRAM) : (stopsL1 * TRAVELTIME_SUBW));
+                            double wait = (((sl.getType() == "trikk") ? TRANSFERTIME_TRAM : TRANSFERTIME_SUBW) + TRANSFERTIME);
                             int stopsL2 = Math.abs(sl.getStationNumber(to) - sl.getStationNumber(s));
-                            double timeL2 = ((sl.getType() == "trikk") ? (stopsL2*1.4) : (stopsL2*1.8));
+                            double timeL2 = ((sl.getType() == "trikk") ? (stopsL2 * TRAVELTIME_TRAM) : (stopsL2 * TRAVELTIME_SUBW));
                             double time = timeL1 + timeL2 + wait;
                             
                             // Output
-                            System.out.print("   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName());
-                            System.out.println(" til " + s.getPrettyName() + " retning " + l.getEndOfLine(from, s).getPrettyName() + ",");
-                            System.out.print("   | og deretter " + sl.getType() + " linje " + sl.getNumber() + " retning " + sl.getEndOfLine(s, to).getPrettyName());
-                            System.out.println(" til " + to.getPrettyName() + ".");
-                            System.out.println("   o Estimert reisetid: " + df.format(time) + " min.\n");
+                            String output  = "   o Ta " + l.getType() + " linje " + l.getNumber() + " fra: " + from.getPrettyName();
+                                   output += " til " + s.getPrettyName() + " retning " + l.getEndOfLine(from, s).getPrettyName() + ",\n";
+                                   output += "   | og deretter " + sl.getType() + " linje " + sl.getNumber() + " retning " + sl.getEndOfLine(s, to).getPrettyName();
+                                   output += " til " + to.getPrettyName() + ".\n";
+                                   output += "   o Estimert reisetid: " + df.format(time) + " min.\n";
+                            
+                            System.out.println(output);
+                            
+                            if (time < fastest) {
+                                fastest = time;
+                                fastest_string = output;
+                            }
                         }
                     }
                 }
@@ -231,7 +207,7 @@ class Planner {
         
         // Shortest travel time
         System.out.println(" Raskeste reisevei:");
-        System.out.println("   " + fastest_string);
+        System.out.println(fastest_string);
         
         // Travel more
         while (true) {
@@ -252,22 +228,12 @@ class Planner {
     
     // Return line (by number)
     private Line getLineByNumber(int n) {
-        Line l = this.getLines().get(n);
-        
-        if (l != null)
-            return l;
-            
-        return null;
+        return this.getLines().get(n);
     }
 	
 	// Return station (by name)
 	private Station getStationByName(String n) {
-        Station s = this.getStations().get(n.toLowerCase().trim());
-        
-		if (s != null)
-			return s;
-		
-		return null;
+        return this.getStations().get(n.toLowerCase().trim());
 	}
     
     // Check if existing station (by name)
@@ -278,10 +244,12 @@ class Planner {
 		return true;
 	}
     
-    // Getters/Setters
+    // Return all lines
     private HashMap<Integer, Line> getLines() {
         return this.lines;
     }
+    
+    // Return all stations
 	private HashMap<String, Station> getStations() {
 		return this.stations;
 	}
@@ -294,7 +262,6 @@ class Line {
 	/*	Variables
 	------------------------------------ */
 	private int number;
-	
 	private ArrayList<Station> stations = new ArrayList<Station>();
     
 	
@@ -314,13 +281,15 @@ class Line {
 		return true;
     }
 	
-	// Getters and setters
+	// Line number
 	void setNumber(int n) {
 		this.number = n;
 	}
 	int getNumber() {
 		return this.number;
 	}
+    
+    // Stations
     ArrayList<Station> getStations() {
         return this.stations;
     }
@@ -333,6 +302,8 @@ class Line {
         else
             return this.getStations().get(0);
 	}
+    
+    // Type
 	String getType() {
 		return ((this.getNumber() < 10) ? "t-bane" : "trikk");
 	}
@@ -345,7 +316,6 @@ class Station {
 	/*	Variables
 	------------------------------------ */
 	private String name;
-    
     private ArrayList<Line> lines = new ArrayList<Line>();
 	
 	
@@ -357,10 +327,12 @@ class Station {
 		lines.add(l);
 	}
 	
-	// Getters and setters
+	// Return lines
     ArrayList<Line> getLines() {
         return this.lines;
     }
+    
+    // Name
 	void setName(String n) {
 		this.name = n;
 	}
@@ -372,16 +344,3 @@ class Station {
     }
 }
 
-
-// 	Class: Transfer
-// =================================================================================
-class Transfer {
-
-}
-
-
-// 	Class: Transfer
-// =================================================================================
-class Travel {
-    
-}
