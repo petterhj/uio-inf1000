@@ -13,11 +13,11 @@ class Oblig5 {
     // Main
     public static void main(String[] args) {
         // Header
-		System.out.println("\n================================================================================");
-		System.out.println(" Reiseplanlegger");
-		System.out.println("================================================================================\n");
+        System.out.println("\n================================================================================");
+        System.out.println(" Reiseplanlegger");
+        System.out.println("================================================================================\n");
 		
-		// Initiate planner
+        // Initiate planner
         Planner pl = new Planner();
         
         // Footer (spacer)
@@ -26,7 +26,7 @@ class Oblig5 {
 }
 
 
-// 	Class: Planner
+//  Class: Planner
 // =================================================================================
 class Planner {
     // Variables
@@ -38,7 +38,7 @@ class Planner {
     private final double TRANSFERTIME = 3.0;
 	
     private HashMap<Integer, Line> lines = new HashMap<Integer, Line>();
-	private HashMap<String, Station> stations = new HashMap<String, Station>();
+    private HashMap<String, Station> stations = new HashMap<String, Station>();
     
     // Constructor
     Planner() {
@@ -54,42 +54,42 @@ class Planner {
         try {
             BufferedReader data = new BufferedReader(new FileReader(DATAFILE));
             
-			String dataline;
-			int lineNumber = 0;
-			int stationNumber = 0;
+            String dataline;
+            int lineNumber = 0;
+            int stationNumber = 0;
 			
             while ((dataline = data.readLine()) != null) {
                 // Line
                 if (dataline.toLowerCase().contains("*linje*")) {
-					lineNumber = Integer.parseInt(dataline.toLowerCase().split("\\*linje\\* ")[1]);
-					stationNumber = 0;
+                    lineNumber = Integer.parseInt(dataline.toLowerCase().split("\\*linje\\* ")[1]);
+                    stationNumber = 0;
 					
                     // Add new line
                     Line line = new Line();
 					line.setNumber(lineNumber);
                     lines.put(line.getNumber(), line);
-				} 
-				// Station
-				else {
-					stationNumber++;
+                } 
+                // Station
+                else {
+                    stationNumber++;
                     Station station;
                     
-					if (this.isStation(dataline)) {
-						// Get existing station
+                    if (this.isStation(dataline)) {
+                        // Get existing station
                         station = this.getStationByName(dataline);
-					} else {
-						// Add new station
+                    } else {
+                        // Add new station
                         station = new Station();
                         station.setName(dataline);
-						stations.put(station.getName().toLowerCase(), station);
-					}
+                        stations.put(station.getName().toLowerCase(), station);
+                    }
                     
                     // Add line to station
                     station.addLine(this.getLineByNumber(lineNumber));
-                    
+
                     // Add station to line
                     this.getLineByNumber(lineNumber).addStation(station);
-				}				
+                }				
             }
             
             data.close();
@@ -103,7 +103,7 @@ class Planner {
     
     // Query 
     private void queryFromTo() {
-		// User input
+        // User input
         System.out.println(" Hvor skal vi reise hen?");
         
         Station origin = this.getStationByName(this.getAndValidateInput("Fra"));
@@ -131,7 +131,7 @@ class Planner {
     
     // Find routes
     private void findRoutes(Station from, Station to) {
-		// Header
+        // Header
         System.out.println("\n\n Aktuelle reiseruter mellom " + from.getName() + " og " + to.getName());
         System.out.println("--------------------------------------------------------------------------------\n");
         
@@ -231,18 +231,18 @@ class Planner {
         return this.getLines().get(n);
     }
 	
-	// Return station (by name)
-	private Station getStationByName(String n) {
+    // Return station (by name)
+    private Station getStationByName(String n) {
         return this.getStations().get(n.toLowerCase().trim());
-	}
+    }
     
     // Check if existing station (by name)
-	private boolean isStation(String n) {
-		if (this.getStations().get(n.toLowerCase().trim()) == null)
-			return false;
+    private boolean isStation(String n) {
+        if (this.getStations().get(n.toLowerCase().trim()) == null)
+            return false;
 		
-		return true;
-	}
+        return true;
+    }
     
     // Return all lines
     private HashMap<Integer, Line> getLines() {
@@ -250,44 +250,44 @@ class Planner {
     }
     
     // Return all stations
-	private HashMap<String, Station> getStations() {
-		return this.stations;
-	}
+    private HashMap<String, Station> getStations() {
+        return this.stations;
+    }
 }
 
 
 // 	Class: Line
 // =================================================================================
 class Line {
-	/*	Variables
-	------------------------------------ */
-	private int number;
-	private ArrayList<Station> stations = new ArrayList<Station>();
+    /*  Variables
+    ------------------------------------ */
+    private int number;
+    private ArrayList<Station> stations = new ArrayList<Station>();
     
 	
-	/*	Methods
+    /*  Methods
 	------------------------------------ */
 	
-	// Add station to line
-	void addStation(Station s) {
-		stations.add(s);
-	}
+    // Add station to line
+    void addStation(Station s) {
+        stations.add(s);
+    }
 	
-	// Check if line goes through station
+    // Check if line goes through station
     boolean hasStation(Station s) {
         if (this.getStations().indexOf(s) < 0)
             return false;
 
-		return true;
+        return true;
     }
 	
-	// Line number
-	void setNumber(int n) {
-		this.number = n;
-	}
-	int getNumber() {
-		return this.number;
-	}
+    // Line number
+    void setNumber(int n) {
+        this.number = n;
+    }
+    int getNumber() {
+        return this.number;
+    }
     
     // Stations
     ArrayList<Station> getStations() {
@@ -297,48 +297,48 @@ class Line {
         return this.getStations().indexOf(s) + 1;
     }
     Station getEndOfLine(Station from, Station to) {
-		if (this.getStations().indexOf(from) < this.getStations().indexOf(to))
+        if (this.getStations().indexOf(from) < this.getStations().indexOf(to))
             return this.getStations().get(this.getStations().size() - 1);
         else
             return this.getStations().get(0);
 	}
     
     // Type
-	String getType() {
-		return ((this.getNumber() < 10) ? "t-bane" : "trikk");
-	}
+    String getType() {
+        return ((this.getNumber() < 10) ? "t-bane" : "trikk");
+    }
 }
 
 
 // 	Class: Station
 // =================================================================================
 class Station {
-	/*	Variables
-	------------------------------------ */
-	private String name;
+    /*  Variables
+    ------------------------------------ */
+    private String name;
     private ArrayList<Line> lines = new ArrayList<Line>();
 	
 	
-	/*	Methods
-	------------------------------------ */
+    /*  Methods
+    ------------------------------------ */
 	
-	// Add line to station
-	void addLine(Line l) {
-		lines.add(l);
-	}
+    // Add line to station
+    void addLine(Line l) {
+        lines.add(l);
+    }
 	
-	// Return lines
+    // Return lines
     ArrayList<Line> getLines() {
         return this.lines;
     }
     
     // Name
-	void setName(String n) {
-		this.name = n;
-	}
-	String getName() {
-		return this.name;
-	}
+    void setName(String n) {
+        this.name = n;
+    }
+    String getName() {
+        return this.name;
+    }
     String getPrettyName() {
         return this.getName().replace("-", " ");
     }
