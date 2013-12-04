@@ -3,7 +3,7 @@ import java.util.*; // For HashMap
 
 class Test {
     public static void main(String args[]) {
-        // Åpne fil
+        //  Open file
         try {
             // Les fil
             BufferedReader data = new BufferedReader(new FileReader("Ord.txt"));
@@ -20,10 +20,12 @@ class Test {
             HashMap<Integer, Integer> stats  = new HashMap<Integer, Integer>();
             
             for (int i : ord.values()) {                // i = ordlengde
-                if (stats.get(i) == null)
-                    stats.put(i, 1);                    // Nytt antall
-                else
-                    stats.put(i, (stats.get(i) + 1));   // Legg til antall
+                if (i < 5) {
+                    if (stats.get(i) == null)
+                        stats.put(i, 1);                    // Nytt antall
+                    else
+                        stats.put(i, (stats.get(i) + 1));   // Legg til antall
+                }
             }
             
             // Skriv ut
